@@ -28,6 +28,8 @@ inputs:
     required: true
   web-app-url:
     required: true
+  web-app-url-alternative:
+    required: false
   mongo-url:
     required: true
 
@@ -62,6 +64,7 @@ runs:
           -e "JWT_SECRET=${{ inputs.jwt-secret }}" \
           -e "OUR_ENV=${{ inputs.our-env }}" \
           -e "WEB_APP_URL=${{ inputs.web-app-url }}" \
+          -e "WEB_APP_URL_ALTERNATIVE=${{ inputs.web-app-url-alternative }}" \
           -e "MONGO_URL=${{ inputs.mongo-url }}" \
           -e "GOOGLE_CLIENT_ID=${{ inputs.google-client-id }}" \
           -e "GOOGLE_CLIENT_SECRET=${{ inputs.google-client-secret }}" \

@@ -19,8 +19,10 @@ export interface EnvConfig {
       redirectUriAlternative: string;
     };
   };
-  /** Public URL of the web app, used to build redirect links. */
+  /** Public URL of the web app (production), used to build redirect links. */
   webAppUrl: string;
+  /** Localhost web app URL, used when the client sends forceLocalLogin. */
+  webAppUrlAlternative: string;
 }
 
 interface EnvConfigs {
@@ -48,6 +50,10 @@ const baseConfig: EnvConfig = {
     },
   },
   webAppUrl: process.env.WEB_APP_URL || 'http://localhost:5173',
+  webAppUrlAlternative:
+    process.env.WEB_APP_URL_ALTERNATIVE ||
+    process.env.WEB_APP_URL ||
+    'http://localhost:5173',
 };
 
 export const EnvConfigs: EnvConfigs = {
@@ -58,4 +64,14 @@ export const EnvConfigs: EnvConfigs = {
 export function getEnvConfig(): EnvConfig {
   const env = getOurEnv();
   return EnvConfigs[env];
+}
+
+/**
+ * Resolve the web app URL the same way Google's redirect URI is resolved:
+ * use the localhost alternative when the request is a local-development login,
+ * otherwise the production URL.
+ */
+export function getWebAppUrl(forceLocalLogin?: boolean): string {
+  const config = getEnvConfig();
+  return forceLocalLogin ? config.webAppUrlAlternative : config.webAppUrl;
 }

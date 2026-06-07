@@ -82,6 +82,7 @@ jobs:
           jwt-secret: ${{ secrets.JWT_SECRET }}
           our-env: prod
           web-app-url: ${{ secrets.WEB_APP_URL }}
+          web-app-url-alternative: ${{ secrets.WEB_APP_URL_ALTERNATIVE }}
           mongo-url: ${{ secrets.MONGO_URL }}
           google-client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
           google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}

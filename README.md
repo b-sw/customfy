@@ -170,7 +170,8 @@ Repository **Secrets** (used by the backend VPS/Docker deploy):
 | `SSH_PORT` | SSH port (usually `22`) |
 | `SSH_PRIVATE_KEY` | SSH private key authorized on the VPS |
 | `JWT_SECRET` | App JWT secret |
-| `WEB_APP_URL` | Public frontend URL |
+| `WEB_APP_URL` | Public frontend URL (production) |
+| `WEB_APP_URL_ALTERNATIVE` | Localhost frontend URL for local logins (optional) |
 | `MONGO_URL` | MongoDB connection string |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |

@@ -7,3 +7,4 @@ process.env.GOOGLE_CLIENT_SECRET = 'test-client-secret';
 process.env.GOOGLE_REDIRECT_URI = 'http://localhost:5173';
 process.env.GOOGLE_REDIRECT_URI_ALTERNATIVE = 'http://localhost:5173';
 process.env.WEB_APP_URL = 'http://localhost:5173';
+process.env.WEB_APP_URL_ALTERNATIVE = 'http://localhost:5173';
