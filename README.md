@@ -99,7 +99,7 @@ Like Cryptly, a single Google OAuth client supports both production and localhos
 - `GOOGLE_REDIRECT_URI` — the production redirect (used by the deployed frontend).
 - `GOOGLE_REDIRECT_URI_ALTERNATIVE` — the localhost redirect, used when the request carries `forceLocalLogin`.
 
-The frontend sends `forceLocalLogin: true` automatically when it runs on `localhost`. The backend then exchanges the code using `GOOGLE_REDIRECT_URI_ALTERNATIVE`, which matches the `redirect_uri` the local frontend used. **Register both URIs** as Authorized redirect URIs in the Google console (e.g. `https://b-sw.github.io/customfy/` and `http://localhost:5173`). In each environment, the frontend's `VITE_APP_URL` must equal the redirect URI the backend will use.
+The frontend sends `forceLocalLogin: true` automatically when it runs on `localhost`. The backend then exchanges the code using `GOOGLE_REDIRECT_URI_ALTERNATIVE`, which matches the `redirect_uri` the local frontend used. **Register both URIs** as Authorized redirect URIs in the Google console (e.g. your Vercel URL like `https://customfy.vercel.app` and `http://localhost:5173`). In each environment, the frontend's `VITE_APP_URL` must equal the redirect URI the backend will use.
 
 ### Optional dev-only local login (no Google)
 
@@ -126,7 +126,7 @@ Leave both unset/`false` to use real Google OAuth (the default).
 ```bash
 cd frontend
 pnpm run dev      # dev server
-pnpm run build    # production build to dist/ (base path /customfy/)
+pnpm run build    # production build to dist/
 pnpm run lint     # eslint
 pnpm run preview  # preview the production build
 ```
@@ -140,11 +140,9 @@ The app has two screens:
 
 `src/App.tsx` chooses the screen based on the stored JWT and handles the Google `?code=` callback.
 
-### Hosting on GitHub Pages
+### Hosting on Vercel
 
-The frontend deploys to GitHub Pages at `https://<owner>.github.io/customfy/` via `.github/workflows/frontend-deploy.yml`. Vite is configured with `base: '/customfy/'` for production builds.
-
-One-time repo setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**. Then set these repo **Variables** (Settings → Secrets and variables → Actions → Variables) so they are baked into the build: `VITE_APP_URL`, `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`. Pushing to `main` (or running the workflow manually) publishes the site.
+The frontend is deployed to Vercel. In the Vercel project, set the root directory to `frontend/` and add the environment variables `VITE_APP_URL` (the Vercel URL), `VITE_API_URL` (your backend URL), and `VITE_GOOGLE_CLIENT_ID`. Vercel builds with Vite and auto-serves the SPA. Make sure the Vercel URL is registered as an Authorized redirect URI in the Google console and matches the backend's `GOOGLE_REDIRECT_URI`.
 
 ## CI/CD
 
@@ -153,9 +151,8 @@ GitHub Actions workflows live in `.github/workflows`:
 - **backend-deploy.yml** — on push to `main` (when `backend/**` changes): runs e2e tests, builds and pushes a Docker image to Docker Hub, deploys it to a VPS over SSH, then prunes old images.
 - **backend-ci.yml** — on pull requests: builds and tests the backend.
 - **frontend-ci.yml** — on pull requests: lints and builds the frontend.
-- **frontend-deploy.yml** — on push to `main`: builds and publishes the frontend to GitHub Pages.
 
-The backend deploy steps use reusable composite actions in `.github/templates`.
+The backend deploy steps use reusable composite actions in `.github/templates`. The frontend is deployed by Vercel (not GitHub Actions).
 
 ### Deployment credentials
 
@@ -177,12 +174,13 @@ Repository **Secrets** (used by the backend VPS/Docker deploy):
 | `MONGO_URL` | MongoDB connection string |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
-| `GOOGLE_REDIRECT_URI` | Google OAuth redirect URI (must match the frontend) |
+| `GOOGLE_REDIRECT_URI` | Google OAuth redirect URI (must match the frontend, i.e. the Vercel URL) |
+| `GOOGLE_REDIRECT_URI_ALTERNATIVE` | Localhost redirect for local dev (optional) |
 
-Repository **Variables** (baked into the static frontend build — public values):
+The **frontend** is deployed by Vercel. Its env vars are configured in the Vercel project settings (not GitHub):
 
 | Variable | Description |
 | --- | --- |
-| `VITE_APP_URL` | Public frontend URL, e.g. `https://b-sw.github.io/customfy` |
+| `VITE_APP_URL` | Public frontend URL (the Vercel URL) |
 | `VITE_API_URL` | Public backend URL on your VPS |
 | `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID (same as `GOOGLE_CLIENT_ID`) |
