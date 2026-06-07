@@ -1,0 +1,96 @@
+name: Deploy backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+      - '.github/templates/build-and-push/**'
+      - '.github/templates/deploy-backend-container/**'
+      - '.github/templates/prune/**'
+
+defaults:
+  run:
+    working-directory: ./backend
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          package_json_file: backend/package.json
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: backend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache mongodb-memory-server binaries
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/mongodb-binaries
+          key: mongodb-binaries-${{ runner.os }}-${{ hashFiles('backend/pnpm-lock.yaml') }}
+          restore-keys: |
+            mongodb-binaries-${{ runner.os }}-
+
+      - name: Pre-download mongodb-memory-server binary
+        run: node -e "require('mongodb-memory-server').MongoMemoryServer.create().then(s => s.stop())"
+
+      - name: Run e2e tests
+        run: pnpm run test:e2e
+        env:
+          JWT_SECRET: "test"
+          OUR_ENV: "dev"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build and push
+        uses: "./.github/templates/build-and-push"
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+          image-name: ${{ secrets.DOCKER_IMAGE_NAME }}
+      - name: Deploy
+        uses: "./.github/templates/deploy-backend-container"
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          server-port: 3000
+          application-port: 3000
+          image-name: ${{ secrets.DOCKER_IMAGE_NAME }}
+          container-name: customfy-backend
+          jwt-secret: ${{ secrets.JWT_SECRET }}
+          our-env: prod
+          web-app-url: ${{ secrets.WEB_APP_URL }}
+          mongo-url: ${{ secrets.MONGO_URL }}
+          google-client-id: ${{ secrets.GOOGLE_CLIENT_ID }}
+          google-client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          google-redirect-uri: ${{ secrets.GOOGLE_REDIRECT_URI }}
+          google-redirect-uri-alternative: ${{ secrets.GOOGLE_REDIRECT_URI_ALTERNATIVE }}
+      - name: Prune
+        uses: "./.github/templates/prune"
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}

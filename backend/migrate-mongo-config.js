@@ -1,0 +1,17 @@
+require('dotenv').config();
+
+const config = {
+  mongodb: {
+    url: process.env.MONGO_URL,
+    options: {},
+  },
+  migrationsDir: 'mongo-migrations',
+  changelogCollectionName: 'migrations',
+  lockCollectionName: 'migrations_lock',
+  lockTtl: 0,
+  migrationFileExtension: '.js',
+  useFileHash: false,
+  moduleSystem: 'commonjs',
+};
+
+module.exports = config;

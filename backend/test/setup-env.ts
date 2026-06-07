@@ -1,0 +1,9 @@
+process.env.OUR_ENV = 'dev';
+process.env.JWT_SECRET = 'test-secret';
+process.env.JWT_EXPIRES_IN = '15m';
+process.env.ALLOW_LOCAL_LOGIN = 'true';
+process.env.GOOGLE_CLIENT_ID = 'test-client-id';
+process.env.GOOGLE_CLIENT_SECRET = 'test-client-secret';
+process.env.GOOGLE_REDIRECT_URI = 'http://localhost:5173';
+process.env.GOOGLE_REDIRECT_URI_ALTERNATIVE = 'http://localhost:5173';
+process.env.WEB_APP_URL = 'http://localhost:5173';
