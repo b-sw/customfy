@@ -2,6 +2,15 @@ import axios from 'axios'
 
 const TOKEN_KEY = 'customfy.token'
 
+export function isLocal(): boolean {
+  return window.location.hostname === 'localhost'
+}
+
+// When running locally the backend is always on localhost:3003; otherwise use
+// the remote URL baked in at build time (VITE_API_URL).
+const LOCAL_API_URL = 'http://localhost:3003'
+export const apiBaseUrl = isLocal() ? LOCAL_API_URL : import.meta.env.VITE_API_URL
+
 export const tokenStorage = {
   get: () => localStorage.getItem(TOKEN_KEY),
   set: (token: string) => localStorage.setItem(TOKEN_KEY, token),
@@ -9,7 +18,7 @@ export const tokenStorage = {
 }
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: apiBaseUrl,
 })
 
 api.interceptors.request.use((config) => {
@@ -27,10 +36,6 @@ export interface User {
   avatarUrl: string
   displayName: string
   isAdmin: boolean
-}
-
-function isLocal(): boolean {
-  return window.location.hostname === 'localhost'
 }
 
 export const AuthApi = {

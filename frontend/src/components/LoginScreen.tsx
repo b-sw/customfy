@@ -12,7 +12,9 @@ export function LoginScreen({ onAuthenticated }: LoginScreenProps) {
   const handleGoogleLogin = () => {
     setLoading(true)
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
-    const redirectUri = import.meta.env.VITE_APP_URL
+    // Redirect back to wherever the app is currently served: localhost in dev,
+    // the deployed origin in production. No env var needed.
+    const redirectUri = window.location.origin
     const params = new URLSearchParams({
       client_id: clientId,
       redirect_uri: redirectUri,

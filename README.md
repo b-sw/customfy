@@ -99,7 +99,7 @@ Like Cryptly, a single Google OAuth client supports both production and localhos
 - `GOOGLE_REDIRECT_URI` — the production redirect (used by the deployed frontend).
 - `GOOGLE_REDIRECT_URI_ALTERNATIVE` — the localhost redirect, used when the request carries `forceLocalLogin`.
 
-The frontend sends `forceLocalLogin: true` automatically when it runs on `localhost`. The backend then exchanges the code using `GOOGLE_REDIRECT_URI_ALTERNATIVE`, which matches the `redirect_uri` the local frontend used. **Register both URIs** as Authorized redirect URIs in the Google console (e.g. your Vercel URL like `https://customfy.vercel.app` and `http://localhost:5173`). In each environment, the frontend's `VITE_APP_URL` must equal the redirect URI the backend will use.
+The frontend always redirects to its **own origin** (`window.location.origin`) and sends `forceLocalLogin: true` automatically when it runs on `localhost`. The backend then exchanges the code using `GOOGLE_REDIRECT_URI_ALTERNATIVE` (localhost) or `GOOGLE_REDIRECT_URI` (production) to match. **Register both origins** as Authorized redirect URIs in the Google console (e.g. your Vercel URL like `https://customfy.vercel.app` and `http://localhost:5173`). So there are no per-environment frontend URL vars to manage — `GOOGLE_REDIRECT_URI` (backend) just needs to equal the deployed frontend origin.
 
 ### Optional dev-only local login (no Google)
 
@@ -131,7 +131,7 @@ pnpm run lint     # eslint
 pnpm run preview  # preview the production build
 ```
 
-Environment variables — copy `frontend/.env.example` to `frontend/.env` (`VITE_APP_URL`, `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`).
+Environment variables — copy `frontend/.env.example` to `frontend/.env` (`VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`). When the app runs on `localhost` it automatically targets the local backend at `http://localhost:3003` and ignores `VITE_API_URL`, so a single `.env` with remote values works for both local and production.
 
 The app has two screens:
 
@@ -142,7 +142,7 @@ The app has two screens:
 
 ### Hosting on Vercel
 
-The frontend is deployed to Vercel. In the Vercel project, set the root directory to `frontend/` and add the environment variables `VITE_APP_URL` (the Vercel URL), `VITE_API_URL` (your backend URL), and `VITE_GOOGLE_CLIENT_ID`. Vercel builds with Vite and auto-serves the SPA. Make sure the Vercel URL is registered as an Authorized redirect URI in the Google console and matches the backend's `GOOGLE_REDIRECT_URI`.
+The frontend is deployed to Vercel. In the Vercel project, set the root directory to `frontend/` and add the environment variables `VITE_API_URL` (your backend URL) and `VITE_GOOGLE_CLIENT_ID`. Vercel builds with Vite and auto-serves the SPA. The frontend redirects to its own origin, so make sure the Vercel URL is registered as an Authorized redirect URI in the Google console and equals the backend's `GOOGLE_REDIRECT_URI`.
 
 ## CI/CD
 
@@ -181,6 +181,5 @@ The **frontend** is deployed by Vercel. Its env vars are configured in the Verce
 
 | Variable | Description |
 | --- | --- |
-| `VITE_APP_URL` | Public frontend URL (the Vercel URL) |
 | `VITE_API_URL` | Public backend URL on your VPS |
 | `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID (same as `GOOGLE_CLIENT_ID`) |
