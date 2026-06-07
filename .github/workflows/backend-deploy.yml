@@ -75,8 +75,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           port: ${{ secrets.SSH_PORT }}
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          server-port: 3000
-          application-port: 3000
+          server-port: 3003
+          application-port: 3003
           image-name: ${{ secrets.DOCKER_IMAGE_NAME }}
           container-name: customfy-backend
           jwt-secret: ${{ secrets.JWT_SECRET }}
